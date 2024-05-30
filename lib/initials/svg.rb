@@ -2,17 +2,19 @@ module Initials
   class SVG
     HUE_WHEEL = 360
 
-    attr_reader :name, :colors, :limit, :shape, :size
+    attr_reader :name, :colors, :limit, :shape, :size, :text_opacity
 
-    def initialize(name, colors: 12, limit: 3, shape: :circle, size: 32)
+    def initialize(name, colors: 12, limit: 3, shape: :circle, size: 32, text_opacity: 0.75)
       @name = name.to_s.strip
       @colors = colors
       @limit = limit
       @shape = shape
       @size = size
+      @text_opacity = text_opacity
 
       raise Initials::Error.new("Colors must be a divider of 360 e.g. 24 but not 16.") unless valid_colors?
       raise Initials::Error.new("Size is not a positive integer.") unless valid_size?
+      raise Initials::Error.new("Text opacity should be the value of 0 to 1") unless valid_text_opacity?
     end
 
     def name
@@ -26,7 +28,7 @@ module Initials
             "<rect width='#{size}' height='#{size}' rx='#{size / 32}' ry='#{size / 32}' fill='#{fill}' />"
           :
             "<circle cx='#{size / 2}' cy='#{size / 2}' r='#{size / 2}' fill='#{fill}' />",
-          "<text x='50%' y='50%' fill='white' fill-opacity='0.75' dominant-baseline='central' text-anchor='middle' style='font-size: #{font_size}px; font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen-Sans, Ubuntu, Cantarell, \"Helvetica Neue\", sans-serif; user-select: none;'>",
+          "<text x='50%' y='50%' fill='white' fill-opacity='#{text_opacity}' dominant-baseline='central' text-anchor='middle' style='font-size: #{font_size}px; font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen-Sans, Ubuntu, Cantarell, \"Helvetica Neue\", sans-serif; user-select: none;'>",
             "#{initials}",
           "</text>",
         "</svg>"
@@ -69,6 +71,13 @@ module Initials
     def valid_size?
       return false unless size.respond_to?(:to_i)
       size.to_i > 0
+    end
+
+    def valid_text_opacity?
+      return false unless text_opacity.respond_to?(:to_f)
+
+      puts text_opacity
+      (0..1).include? text_opacity.to_f
     end
   end
 end

@@ -109,6 +109,24 @@ RSpec.describe Initials::SVG do
         end
       end
     end
+
+    describe "text_opacity" do
+      it "defaults to 0.75" do
+        expect(described_class.new("Rick").text_opacity).to eq(0.75)
+      end
+
+      [-1, -0.001, 1.001].each do |text_opacity|
+        it "validates float between 0 and 1 (#{text_opacity} is invalid)" do
+          expect { described_class.new("Rick", text_opacity: text_opacity) }.to raise_error Initials::Error
+        end
+      end
+
+      [0, 0.5, 1].each do |text_opacity|
+        it "validates float between 0 and 1 (#{text_opacity} is valid)" do
+          expect { described_class.new("Rick", text_opacity: text_opacity) }.not_to raise_error
+        end
+      end
+    end
   end
 
   describe "name handling" do
