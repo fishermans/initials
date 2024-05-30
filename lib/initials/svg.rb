@@ -76,7 +76,6 @@ module Initials
     def valid_text_opacity?
       return false unless text_opacity.respond_to?(:to_f)
 
-      puts text_opacity
       (0..1).include? text_opacity.to_f
     end
   end
