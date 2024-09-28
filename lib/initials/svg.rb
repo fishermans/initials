@@ -2,9 +2,9 @@ module Initials
   class SVG
     HUE_WHEEL = 360
 
-    attr_reader :name, :colors, :limit, :shape, :size, :title
+    attr_reader :name, :colors, :limit, :shape, :size, :title, :font_size_multiplier
 
-    def initialize(name, colors: 12, limit: 3, shape: :circle, size: 32, title: nil)
+    def initialize(name, colors: 12, limit: 3, shape: :circle, size: 32, title: nil, font_size_multiplier: 1.0)
       @name = name.to_s.strip
       @colors = colors
       @limit = limit
@@ -18,7 +18,9 @@ module Initials
                else
                  title.to_s.strip
                end
+      @font_size_multiplier = font_size_multiplier
 
+      raise Initials::Error.new("Font size multiplier must be a number between 0 and 2, was: #{@font_size_multiplier}") unless valid_font_size_multiplier?
       raise Initials::Error.new("Colors must be a divider of 360 e.g. 24 but not 16.") unless valid_colors?
       raise Initials::Error.new("Size is not a positive integer.") unless valid_size?
     end
@@ -60,7 +62,8 @@ module Initials
     end
 
     def font_size
-      size/2 + size/16 - (initials.length * size/16)
+      default_font_size = size/2 + size/16 - (initials.length * size/16)
+      (@font_size_multiplier * default_font_size).round
     end
 
     def initials
@@ -69,16 +72,18 @@ module Initials
 
     private
 
+    def valid_font_size_multiplier?
+      (0..2) === @font_size_multiplier
+    end
+
     def valid_colors?
       return false unless colors.respond_to?(:to_i)
       return false unless colors > 0
-
       HUE_WHEEL % colors == 0
     end
 
     def valid_size?
       return false unless size.respond_to?(:to_i)
-
       size.to_i > 0
     end
   end
